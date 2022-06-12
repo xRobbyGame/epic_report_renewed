@@ -8,6 +8,21 @@ class AppColors {
   static Color element_Light = Color.fromARGB(255, 223, 204, 80);
   static Color element_Dark = Color.fromARGB(255, 151, 126, 185);
   static Color element_None = Color.fromARGB(255, 202, 202, 202);
+  static Color dark = Color.fromARGB(255, 35, 35, 35);
+  static Color darker = Color.fromARGB(255, 27, 27, 27);
+  static Color light_grey = Color.fromARGB(255, 180, 180, 180);
+
+  Color getDark() {
+    return dark;
+  }
+
+  Color getDarker() {
+    return darker;
+  }
+
+  Color getLightGrey() {
+    return light_grey;
+  }
 
   Color getColor(String type) {
     if (type == 'Fire') {
