@@ -1,30 +1,25 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
+//Colors used in the app
 class AppColors {
-  static Color element_Fire = Color.fromARGB(255, 255, 135, 135);
-  static Color element_Ice = Color.fromARGB(255, 126, 206, 246);
-  static Color element_Earth = Color.fromARGB(255, 121, 239, 139);
-  static Color element_Light = Color.fromARGB(255, 255, 241, 153);
-  static Color element_Dark = Color.fromARGB(255, 190, 159, 233);
-  static Color element_None = Color.fromARGB(255, 202, 202, 202);
-  static Color dark = Color.fromARGB(255, 35, 35, 35);
-  static Color darker = Color.fromARGB(255, 27, 27, 27);
-  static Color light_grey = Color.fromARGB(255, 180, 180, 180);
+  //Elements
+  static Color element_Fire = const Color.fromARGB(255, 255, 135, 135);
+  static Color element_Ice = const Color.fromARGB(255, 126, 206, 246);
+  static Color element_Earth = const Color.fromARGB(255, 121, 239, 139);
+  static Color element_Light = const Color.fromARGB(255, 255, 241, 153);
+  static Color element_Dark = const Color.fromARGB(255, 190, 159, 233);
+  static Color element_None = const Color.fromARGB(255, 202, 202, 202);
+  //Widgets
+  static Color dark = const Color.fromARGB(255, 35, 35, 35);
+  static Color darker = const Color.fromARGB(255, 27, 27, 27);
+  static Color much_darker = const Color.fromARGB(255, 14, 14, 14);
+  static Color light_grey = const Color.fromARGB(255, 180, 180, 180);
 
-  Color getDark() {
-    return dark;
-  }
-
-  Color getDarker() {
-    return darker;
-  }
-
-  Color getLightGrey() {
-    return light_grey;
-  }
-
-  Color getColor(String type) {
+  //Returns the color corresponding to the element string
+  static Color getColor(String type) {
     if (type == 'Fire') {
       return AppColors.element_Fire;
     } else if (type == 'Ice') {

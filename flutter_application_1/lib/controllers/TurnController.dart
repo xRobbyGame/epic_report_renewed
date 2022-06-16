@@ -3,12 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/controllers/CharacterController.dart';
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
-import 'dart:convert';
 
-import 'package:intl/intl.dart';
-
+//Controller of a turn data
 class TurnController extends GetxController {
+  //Turn data
   RxList<CharacterController> _characters = [
     new CharacterController(),
     new CharacterController(),
@@ -25,19 +23,28 @@ class TurnController extends GetxController {
   TextEditingController _crDepush = TextEditingController();
   TextEditingController get crDepush => _crDepush;
 
+  Color yourSpeedColor = Colors.red;
+  Icon yourSpeedIcon = const Icon(
+    Icons.highlight_remove_rounded,
+    color: Colors.red,
+  );
+
+  //Calculate real player speed with CR
   int calculteRealSpeed() {
     int speed = 0;
     int crBonus = 0;
     if (crPush.value.text.isNotEmpty) {
-      crBonus += int.parse(crPush.value.text);
-    }
-    if (crDepush.value.text.isNotEmpty) {
       crBonus -= int.parse(crPush.value.text);
     }
+    if (crDepush.value.text.isNotEmpty) {
+      crBonus += int.parse(crDepush.value.text);
+    }
     if (crBonus != 0) {
-      speed = int.parse(speedFirstCharacter.value.text) *
-          -(crBonus.toDouble()) ~/
-          100;
+      speed = (int.parse(speedFirstCharacter.value.text) -
+              int.parse(speedFirstCharacter.value.text) *
+                  (crBonus.toDouble()) /
+                  100)
+          .toInt();
     } else {
       speed = int.parse(speedFirstCharacter.value.text);
     }

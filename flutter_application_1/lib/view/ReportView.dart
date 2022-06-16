@@ -1,16 +1,13 @@
-// ignore_for_file: deprecated_member_use, prefer_const_constructors, unnecessary_new
+// ignore_for_file: deprecated_member_use, prefer_const_constructors, unnecessary_new, non_constant_identifier_names
 
-import 'dart:collection';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_application_1/controllers/TurnController.dart';
-import 'package:flutter_application_1/main.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/controllers/ReportViewController.dart';
 import 'package:flutter_application_1/utils/appColors.dart';
+
+import '../utils/appFunctions.dart';
 
 class ReportView extends StatefulWidget {
   const ReportView({Key? key}) : super(key: key);
@@ -24,234 +21,12 @@ class _ReportViewState extends State<ReportView> {
   AppColors appColors = new AppColors();
   String share_data = "";
   final List<String> _positionEnnemy = ['First', 'Second', 'Third'];
-  List<Color> yourSpeedColor = [Colors.red, Colors.red];
-  List<Icon> yourSpeedIcon = [
-    Icon(
-      Icons.highlight_remove_rounded,
-      color: Colors.red,
-    ),
-    Icon(
-      Icons.highlight_remove_rounded,
-      color: Colors.red,
-    )
-  ];
 
-  String determineType(int indexTurn, int indexChara) {
-    String data = "";
-
-    switch (controller.turns[indexTurn].characters[indexChara].type.value) {
-      case "Fire":
-        data += ":red";
-        break;
-      case "Ice":
-        data += ":blue";
-        break;
-      case "Earth":
-        data += ":green";
-        break;
-      case "Light":
-        data += ":yellow";
-        break;
-      case "Dark":
-        data += ":purple";
-        break;
-
-      default:
-        data += ":white";
-        break;
-    }
-
-    data += "_circle: __**" +
-        (controller.turns[indexTurn].characters[indexChara].name.value.text !=
-                ""
-            ? controller.turns[indexTurn].characters[indexChara].name.value.text
-            : "?");
-
-    return data;
-  }
-
-  String determineEnemyName() {
-    String data = "";
-
-    if (controller.enemyName.value.text != "") {
-      data += "__**" + controller.enemyName.value.text + " :**__\n\n";
-    }
-
-    return data;
-  }
-
-  String calculateSpeed(int indexTurn, int indexChara) {
-    String finalResult = "";
-    int result = 0;
-
-    if (controller.turns[indexTurn].speedFirstCharacter.text.isEmpty ||
-        controller.turns[indexTurn].characters[indexChara].cr.value.text ==
-            '') {
-      finalResult = "?";
-    } else {
-      result = controller.turns[indexTurn].calculteRealSpeed();
-      int crChara = int.parse(
-          controller.turns[indexTurn].characters[indexChara].cr.value.text);
-      if (controller
-              .turns[indexTurn].characters[indexChara].crPush.value.text !=
-          '') {
-        crChara += int.parse(controller
-            .turns[indexTurn].characters[indexChara].crPush.value.text);
-      }
-      if (controller
-              .turns[indexTurn].characters[indexChara].crDepush.value.text !=
-          '') {
-        crChara += int.parse(controller
-            .turns[indexTurn].characters[indexChara].crDepush.value.text);
-      }
-
-      if (controller
-          .turns[indexTurn].characters[indexChara].hasEnemyOutspeed.value) {
-        crChara += 100;
-      }
-
-      result = (result.toDouble() * ((crChara) / 100)).toInt();
-
-      finalResult += "~";
-
-      if (result % 5 == 1) {
-        result -= 1;
-        finalResult += result.toString();
-      } else if (result % 5 == 4) {
-        result += 1;
-        finalResult += result.toString();
-      } else if (result % 5 != 0) {
-        result -= result % 5;
-
-        finalResult += result.toString();
-
-        result += 5;
-
-        finalResult += "-" + result.toString();
-      } else {
-        finalResult += result.toString();
-      }
-    }
-
-    return finalResult;
-  }
-
-  String determineHP(int indexTurn, int indexChara) {
-    String data = "> **";
-
-    if (controller.turns[indexTurn].characters[indexChara].isHpEnabled.value) {
-      data += convertNumber(
-          controller.turns[indexTurn].characters[indexChara].hp.value);
-    } else {
-      data += "?";
-    }
-    data += "** HP\n";
-
-    return data;
-  }
-
-  String determineSets(int indexTurn, int indexChara) {
-    String data = "";
-
-    List<String> sets = [];
-
-    if ((controller.turns[indexTurn].characters[indexChara].hasImmunity.value ||
-        controller.turns[indexTurn].characters[indexChara].set.value !=
-            "None")) {
-      data += "> ";
-      if (controller
-          .turns[indexTurn].characters[indexChara].hasImmunity.value) {
-        sets.add(":muscle:");
-      }
-      switch (controller.turns[indexTurn].characters[indexChara].set.value) {
-        case "Counter":
-          sets.add(":punch:");
-          break;
-        case "Lifesteal":
-          sets.add(":drop_of_blood:");
-          break;
-        case "Injury":
-          sets.add(":broken_heart:");
-          break;
-
-        default:
-          break;
-      }
-    }
-    if (sets.isNotEmpty) {
-      for (int k = 0; k < sets.length; k++) {
-        data += sets[k];
-        if (k < (sets.length - 1)) {
-          data += " / ";
-        }
-      }
-      data += "\n";
-    }
-
-    return data;
-  }
-
-  String determineArtifact(int indexTurn, int indexChara) {
-    String data = "> `";
-
-    if (controller.turns[indexTurn].characters[indexChara].artifact.value.text
-        .isNotEmpty) {
-      data += controller
-          .turns[indexTurn].characters[indexChara].artifact.value.text;
-    } else {
-      data += "?";
-    }
-
-    data += "`\n";
-
-    return data;
-  }
-
-  String determineComment(int indexTurn, int indexChara) {
-    String data = "";
-
-    if (controller.turns[indexTurn].characters[indexChara].additionalInfos.value
-        .text.isNotEmpty) {
-      data += "> *" +
-          controller.turns[indexTurn].characters[indexChara].additionalInfos
-              .value.text +
-          "*\n";
-    }
-
-    return data;
-  }
-
-  void processData() {
-    String data = "";
-
-    data += determineEnemyName();
-
-    for (int i = 0; i < controller.turns.length; i++) {
-      data += "```╔══════════════════╗\n";
-      data += "║      Turn " + (i + 1).toString() + "      ║\n";
-      data += "╚══════════════════╝```\n";
-
-      for (int j = 0; j < controller.turns[i].characters.length; j++) {
-        data += determineType(i, j);
-        data += " :**__ (**" + calculateSpeed(i, j) + "** SPD)\n";
-        data += determineHP(i, j);
-        data += determineSets(i, j);
-        data += determineArtifact(i, j);
-        data += determineComment(i, j);
-
-        if (j < (controller.turns[i].characters.length - 1)) {
-          data += "\n";
-        }
-      }
-    }
-
-    share_data = data;
-  }
-
-  //################# Build de la page #################
+  //################# Build of page #################
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      //################# Appbar #################
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -260,7 +35,7 @@ class _ReportViewState extends State<ReportView> {
             GestureDetector(
               child: Text(
                 'All the data you need to win',
-                style: TextStyle(fontSize: 10, color: appColors.getLightGrey()),
+                style: TextStyle(fontSize: 9, color: AppColors.light_grey),
               ),
             )
           ],
@@ -268,12 +43,47 @@ class _ReportViewState extends State<ReportView> {
         leading: Icon(Icons.auto_awesome),
         backgroundColor: Colors.black,
         actions: [
+          //Infos button
           TextButton(
               onPressed: () {
                 showDialog(
                   context: context,
                   builder: (BuildContext context) => new AlertDialog(
-                    backgroundColor: appColors.getDarker(),
+                    backgroundColor: AppColors.dark,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                      side: BorderSide(color: Colors.black, width: 2),
+                    ),
+                    title: Center(
+                        child: Text('Information',
+                            style: TextStyle(color: Colors.white))),
+                    content: Column(mainAxisSize: MainAxisSize.min, children: [
+                      Center(
+                          child: Text('Version : 1.1.2',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  color: AppColors.light_grey,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold))),
+                      SizedBox(height: 10),
+                      Center(
+                          child: Text(
+                              'Epic Report is a guild war report generator for Epic Seven.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  color: AppColors.light_grey, fontSize: 13))),
+                    ]),
+                  ),
+                );
+              },
+              child: Icon(Icons.info_rounded)),
+          //Reset button
+          TextButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) => new AlertDialog(
+                    backgroundColor: AppColors.dark,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30.0),
                       side: BorderSide(color: Colors.black, width: 2),
@@ -287,8 +97,7 @@ class _ReportViewState extends State<ReportView> {
                       children: <Widget>[
                         Center(
                             child: Text('All data will be reset.',
-                                style: TextStyle(
-                                    color: appColors.getLightGrey()))),
+                                style: TextStyle(color: AppColors.light_grey))),
                         SizedBox(height: 10),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -296,17 +105,6 @@ class _ReportViewState extends State<ReportView> {
                             new FlatButton(
                               onPressed: () {
                                 setState(() {
-                                  yourSpeedColor = [Colors.red, Colors.red];
-                                  yourSpeedIcon = [
-                                    Icon(
-                                      Icons.highlight_remove_rounded,
-                                      color: Colors.red,
-                                    ),
-                                    Icon(
-                                      Icons.highlight_remove_rounded,
-                                      color: Colors.red,
-                                    )
-                                  ];
                                   controller = new ReportViewController();
                                 });
                                 Navigator.of(context).pop();
@@ -324,18 +122,19 @@ class _ReportViewState extends State<ReportView> {
               child: Icon(Icons.autorenew))
         ],
       ),
+      //################# Body of the page #################
       body: new GestureDetector(
         onTap: () {
           FocusScope.of(context).requestFocus(new FocusNode());
         },
         child: Container(
-          color: Color.fromARGB(255, 14, 14, 14),
+          color: AppColors.much_darker,
           child: Center(
             child: Container(
               decoration: BoxDecoration(
                 boxShadow: [
                   new BoxShadow(
-                    color: appColors.getDark(),
+                    color: AppColors.dark,
                     spreadRadius: 5,
                     blurRadius: 20,
                   ),
@@ -343,55 +142,60 @@ class _ReportViewState extends State<ReportView> {
               ),
               child: ListView(
                 children: [
-                  //################# Nom de l'adversaire #################
+                  //################# Enemy name #################
                   Container(
                     width: 200.0,
                     margin: const EdgeInsets.all(20.00),
-                    child: Flexible(
-                        child: TextField(
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(
-                            RegExp("[0-9a-zA-Z]")),
+                    child: Row(
+                      children: [
+                        Flexible(
+                            child: TextField(
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(
+                                RegExp("[0-9a-zA-Z]")),
+                          ],
+                          maxLength: 15,
+                          autofocus: false,
+                          keyboardType: TextInputType.text,
+                          textCapitalization: TextCapitalization.sentences,
+                          controller: controller.enemyName,
+                          style: TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            filled: true,
+                            fillColor: AppColors.darker,
+                            labelText: 'Enemy name',
+                            labelStyle: TextStyle(color: AppColors.light_grey),
+                            counterText: "",
+                          ),
+                        )),
                       ],
-                      maxLength: 15,
-                      autofocus: false,
-                      keyboardType: TextInputType.text,
-                      textCapitalization: TextCapitalization.sentences,
-                      controller: controller.enemyName,
-                      style: TextStyle(color: Colors.white),
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        filled: true,
-                        fillColor: appColors.getDarker(),
-                        labelText: 'Enemy name',
-                        labelStyle: TextStyle(color: appColors.getLightGrey()),
-                        counterText: "",
-                      ),
-                    )),
+                    ),
                   ),
-                  //################# Personnages ennemis #################
+                  //################# Turns #################
                   for (var i = 0; i < 2; i++)
                     Card(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30.0),
-                          side: BorderSide(
-                              color: appColors.getLightGrey(), width: 2),
+                          side:
+                              BorderSide(color: AppColors.light_grey, width: 2),
                         ),
-                        color: Color.fromARGB(255, 14, 14, 14),
+                        color: AppColors.much_darker,
                         margin: const EdgeInsets.symmetric(
                             horizontal: 20.00, vertical: 15.00),
                         child: Container(
                           margin: const EdgeInsets.symmetric(vertical: 15.00),
                           child: Column(children: [
-                            //################# Speed joueur #################
+                            //################# Player speed #################
                             InkWell(
                               child: Card(
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(15.0),
                                   side: BorderSide(
-                                      color: yourSpeedColor[i], width: 2),
+                                      color: controller.turns[i].yourSpeedColor,
+                                      width: 2),
                                 ),
-                                color: Color.fromARGB(255, 14, 14, 14),
+                                color: AppColors.much_darker,
                                 margin: const EdgeInsets.symmetric(
                                     horizontal: 50.00, vertical: 10.00),
                                 child: Column(
@@ -399,25 +203,27 @@ class _ReportViewState extends State<ReportView> {
                                     ListTile(
                                       title: Text('Your speed',
                                           style: TextStyle(
-                                              color: appColors.getLightGrey())),
+                                              color: AppColors.light_grey)),
                                       subtitle: Text(
                                           controller.turns[i]
                                               .speedFirstCharacter.text,
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               color: Colors.white)),
-                                      leading: yourSpeedIcon[i],
+                                      leading:
+                                          controller.turns[i].yourSpeedIcon,
                                     ),
                                   ],
                                 ),
                               ),
+                              //Popup
                               onTap: () {
                                 showDialog(
                                   barrierDismissible: false,
                                   context: context,
                                   builder: (BuildContext context) =>
                                       new AlertDialog(
-                                    backgroundColor: appColors.getDarker(),
+                                    backgroundColor: AppColors.darker,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(30.0),
                                       side: BorderSide(
@@ -452,11 +258,10 @@ class _ReportViewState extends State<ReportView> {
                                             decoration: InputDecoration(
                                               border: OutlineInputBorder(),
                                               filled: true,
-                                              fillColor: appColors.getDark(),
+                                              fillColor: AppColors.dark,
                                               labelText: 'Speed',
                                               labelStyle: TextStyle(
-                                                  color:
-                                                      appColors.getLightGrey()),
+                                                  color: AppColors.light_grey),
                                               counterText: "",
                                             ),
                                           )),
@@ -499,8 +304,8 @@ class _ReportViewState extends State<ReportView> {
                                                   child: Text(
                                                     'CR%',
                                                     style: TextStyle(
-                                                        color: appColors
-                                                            .getLightGrey(),
+                                                        color: AppColors
+                                                            .light_grey,
                                                         fontSize: 12),
                                                   ),
                                                 ),
@@ -541,8 +346,7 @@ class _ReportViewState extends State<ReportView> {
                                                 'Your information is necessary to estimate opponent\'s speed',
                                                 textAlign: TextAlign.center,
                                                 style: TextStyle(
-                                                    color: appColors
-                                                        .getLightGrey(),
+                                                    color: AppColors.light_grey,
                                                     fontSize: 13)),
                                           ),
                                           SizedBox(height: 10),
@@ -560,18 +364,27 @@ class _ReportViewState extends State<ReportView> {
                                                             .speedFirstCharacter
                                                             .text !=
                                                         "") {
-                                                      yourSpeedColor[i] =
+                                                      controller.turns[i]
+                                                              .yourSpeedColor =
                                                           Colors.blue;
-                                                      yourSpeedIcon[i] = Icon(
-                                                          Icons.check_rounded,
-                                                          color: Colors.blue);
+                                                      controller.turns[i]
+                                                              .yourSpeedIcon =
+                                                          Icon(
+                                                              Icons
+                                                                  .check_rounded,
+                                                              color:
+                                                                  Colors.blue);
                                                     } else {
-                                                      yourSpeedColor[i] =
+                                                      controller.turns[i]
+                                                              .yourSpeedColor =
                                                           Colors.red;
-                                                      yourSpeedIcon[i] = Icon(
-                                                          Icons
-                                                              .highlight_remove_rounded,
-                                                          color: Colors.red);
+                                                      controller.turns[i]
+                                                              .yourSpeedIcon =
+                                                          Icon(
+                                                              Icons
+                                                                  .highlight_remove_rounded,
+                                                              color:
+                                                                  Colors.red);
                                                     }
                                                   });
                                                   Navigator.of(context).pop();
@@ -596,6 +409,7 @@ class _ReportViewState extends State<ReportView> {
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white),
                             )),
+                            //Calling enemies
                             character(i, 0),
                             character(i, 1),
                             character(i, 2),
@@ -607,16 +421,17 @@ class _ReportViewState extends State<ReportView> {
           ),
         ),
       ),
-      //################# Menu navbar #################
+      //################# Navbar #################
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
-        child: Container(
-            color: const Color.fromARGB(255, 14, 14, 14), height: 45.0),
+        child: Container(color: AppColors.much_darker, height: 45.0),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          processData();
+          //Copy report
+          share_data = controller.processData();
           Clipboard.setData(new ClipboardData(text: share_data)).then((_) {
+            //Message when copied
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: SizedBox(
                 height: 40,
@@ -652,32 +467,26 @@ class _ReportViewState extends State<ReportView> {
     );
   }
 
-  //Création d'un personnage ennemi
+  //Creation of an enemy
   InkWell character(int indexTurn, int indexChara) {
+    //Default name
     final String defaultName = (_positionEnnemy[indexChara] + " character");
     if (controller.turns[indexTurn].characters[indexChara].cardName == "") {
       controller.turns[indexTurn].characters[indexChara].cardName = defaultName;
     }
 
-    Color colorHasEnemyOutspeedText = appColors.getLightGrey();
-    Color colorHasImmunityBox = appColors.getDarker();
-    Color colorHasImmunityText = appColors.getLightGrey();
-
-    Icon iconHasEnemyOutspeed = Icon(
-      Icons.highlight_remove_rounded,
-      color: colorHasEnemyOutspeedText,
-    );
-
+    //Card creation
     return InkWell(
+      //Visual
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 35.00, vertical: 10.00),
         decoration: BoxDecoration(
-          color: appColors.getColor(
+          color: AppColors.getColor(
               controller.turns[indexTurn].characters[indexChara].type.value),
           borderRadius: BorderRadius.circular(15.0),
           boxShadow: [
             new BoxShadow(
-              color: appColors.getColor(controller
+              color: AppColors.getColor(controller
                   .turns[indexTurn].characters[indexChara].type.value),
               spreadRadius: 1,
               blurRadius: 3.0,
@@ -698,14 +507,16 @@ class _ReportViewState extends State<ReportView> {
       ),
       onTap: () {
         var sets = ['None', 'Counter', 'Lifesteal', 'Injury'];
-
+        //Popup
         showDialog(
             barrierDismissible: false,
             context: context,
             builder: (context) {
+              //Builder to callback popup information
               return StatefulBuilder(builder: (context, setStateEnemy) {
                 return AlertDialog(
-                  backgroundColor: appColors.getDarker(),
+                  //################# Main widget #################
+                  backgroundColor: AppColors.darker,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30.0),
                     side: BorderSide(color: Colors.black, width: 2),
@@ -723,19 +534,23 @@ class _ReportViewState extends State<ReportView> {
                     child: SingleChildScrollView(
                       scrollDirection: Axis.vertical,
                       child: SizedBox(
+                        //Increasing popup width
                         width: MediaQuery.of(context).size.width * 0.9,
                         child: new Column(
+                          //################# Content #################
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
+                            //################# Name and type #################
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
+                                //Name
                                 Flexible(
                                     child: TextField(
                                   inputFormatters: [
                                     FilteringTextInputFormatter.allow(
-                                        RegExp("[a-zA-Z ]"))
+                                        RegExp("[a-zA-Z &.']"))
                                   ],
                                   maxLength: 20,
                                   keyboardType: TextInputType.text,
@@ -745,109 +560,59 @@ class _ReportViewState extends State<ReportView> {
                                       .characters[indexChara].name,
                                   style: TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      color: appColors.getColor(controller
+                                      color: AppColors.getColor(controller
                                           .turns[indexTurn]
                                           .characters[indexChara]
                                           .type
                                           .value)),
                                   decoration: InputDecoration(
                                     filled: true,
-                                    fillColor: appColors.getDark(),
+                                    fillColor: AppColors.dark,
                                     border: OutlineInputBorder(),
                                     labelText: 'Name',
-                                    labelStyle: TextStyle(
-                                        color: appColors.getLightGrey()),
+                                    labelStyle:
+                                        TextStyle(color: AppColors.light_grey),
                                     counterText: "",
                                   ),
                                 )),
-                                IconButton(
-                                    onPressed: () {
-                                      setStateEnemy(() {
-                                        if (controller
-                                                .turns[indexTurn]
+                                SizedBox(width: 10),
+                                //Type
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Type :',
+                                      style: TextStyle(
+                                          color: AppColors.light_grey,
+                                          fontSize: 12),
+                                    ),
+                                    IconButton(
+                                        onPressed: () {
+                                          setStateEnemy(() {
+                                            controller.turns[indexTurn]
                                                 .characters[indexChara]
-                                                .type
-                                                .value ==
-                                            'None') {
-                                          controller
+                                                .switchType();
+                                          });
+                                        },
+                                        icon: Icon(
+                                          Icons.brightness_1,
+                                          color: AppColors.getColor(controller
                                               .turns[indexTurn]
                                               .characters[indexChara]
                                               .type
-                                              .value = 'Fire';
-                                        } else if (controller
-                                                .turns[indexTurn]
-                                                .characters[indexChara]
-                                                .type
-                                                .value ==
-                                            'Fire') {
-                                          controller
-                                              .turns[indexTurn]
-                                              .characters[indexChara]
-                                              .type
-                                              .value = 'Ice';
-                                        } else if (controller
-                                                .turns[indexTurn]
-                                                .characters[indexChara]
-                                                .type
-                                                .value ==
-                                            'Ice') {
-                                          controller
-                                              .turns[indexTurn]
-                                              .characters[indexChara]
-                                              .type
-                                              .value = 'Earth';
-                                        } else if (controller
-                                                .turns[indexTurn]
-                                                .characters[indexChara]
-                                                .type
-                                                .value ==
-                                            'Earth') {
-                                          controller
-                                              .turns[indexTurn]
-                                              .characters[indexChara]
-                                              .type
-                                              .value = 'Dark';
-                                        } else if (controller
-                                                .turns[indexTurn]
-                                                .characters[indexChara]
-                                                .type
-                                                .value ==
-                                            'Dark') {
-                                          controller
-                                              .turns[indexTurn]
-                                              .characters[indexChara]
-                                              .type
-                                              .value = 'Light';
-                                        } else if (controller
-                                                .turns[indexTurn]
-                                                .characters[indexChara]
-                                                .type
-                                                .value ==
-                                            'Light') {
-                                          controller
-                                              .turns[indexTurn]
-                                              .characters[indexChara]
-                                              .type
-                                              .value = 'None';
-                                        }
-                                      });
-                                    },
-                                    icon: Icon(
-                                      Icons.brightness_1,
-                                      color: appColors.getColor(controller
-                                          .turns[indexTurn]
-                                          .characters[indexChara]
-                                          .type
-                                          .value),
-                                    ))
+                                              .value),
+                                        )),
+                                  ],
+                                )
                               ],
                             ),
                             SizedBox(height: 10),
+                            //################# Artifact #################
                             Flexible(
                                 child: TextField(
                               inputFormatters: [
                                 FilteringTextInputFormatter.allow(
-                                    RegExp("[a-zA-Z ]"))
+                                    RegExp("[a-zA-Z &.'\"()]"))
                               ],
                               maxLength: 20,
                               keyboardType: TextInputType.text,
@@ -858,19 +623,20 @@ class _ReportViewState extends State<ReportView> {
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(),
                                 filled: true,
-                                fillColor: appColors.getDark(),
+                                fillColor: AppColors.dark,
                                 labelText: 'Artifact',
                                 labelStyle:
-                                    TextStyle(color: appColors.getLightGrey()),
+                                    TextStyle(color: AppColors.light_grey),
                                 counterText: "",
                               ),
                             )),
                             SizedBox(height: 10),
+                            //################# HP #################
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 CupertinoSwitch(
-                                  activeColor: appColors.getColor('Ice'),
+                                  activeColor: AppColors.getColor('Ice'),
                                   value: controller.turns[indexTurn]
                                       .characters[indexChara].isHpEnabled.value,
                                   onChanged: (bool value) {
@@ -914,11 +680,13 @@ class _ReportViewState extends State<ReportView> {
                                         width: 80,
                                         child: Center(
                                           child: Text(
-                                              convertNumber(controller
-                                                      .turns[indexTurn]
-                                                      .characters[indexChara]
-                                                      .hp
-                                                      .value) +
+                                              AppFunctions.convertNumber(
+                                                      controller
+                                                          .turns[indexTurn]
+                                                          .characters[
+                                                              indexChara]
+                                                          .hp
+                                                          .value) +
                                                   ' HP',
                                               style: TextStyle(
                                                 color: Colors.white,
@@ -959,6 +727,7 @@ class _ReportViewState extends State<ReportView> {
                               ],
                             ),
                             SizedBox(height: 10),
+                            //################# Enemy CR #################
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -1000,10 +769,10 @@ class _ReportViewState extends State<ReportView> {
                                   decoration: InputDecoration(
                                     border: OutlineInputBorder(),
                                     filled: true,
-                                    fillColor: appColors.getDark(),
+                                    fillColor: AppColors.dark,
                                     labelText: 'CR%',
-                                    labelStyle: TextStyle(
-                                        color: appColors.getLightGrey()),
+                                    labelStyle:
+                                        TextStyle(color: AppColors.light_grey),
                                     counterText: "",
                                   ),
                                 )),
@@ -1035,6 +804,7 @@ class _ReportViewState extends State<ReportView> {
                               ],
                             ),
                             SizedBox(height: 5),
+                            //################# Enemy has outspeed #################
                             Center(
                               child: InkWell(
                                 child: SizedBox(
@@ -1042,57 +812,38 @@ class _ReportViewState extends State<ReportView> {
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      iconHasEnemyOutspeed,
+                                      controller
+                                          .turns[indexTurn]
+                                          .characters[indexChara]
+                                          .iconHasEnemyOutsped,
                                       SizedBox(width: 10),
-                                      Text("Enemy has outspeed",
+                                      Text("Enemy has outsped",
                                           style: TextStyle(
-                                              color:
-                                                  colorHasEnemyOutspeedText)),
+                                              color: controller
+                                                  .turns[indexTurn]
+                                                  .characters[indexChara]
+                                                  .colorHasEnemyOutsped)),
                                     ],
                                   ),
                                 ),
                                 onTap: () {
                                   setStateEnemy(() {
-                                    if (controller
-                                        .turns[indexTurn]
-                                        .characters[indexChara]
-                                        .hasEnemyOutspeed
-                                        .value) {
-                                      controller
-                                          .turns[indexTurn]
-                                          .characters[indexChara]
-                                          .hasEnemyOutspeed
-                                          .value = false;
-                                      colorHasEnemyOutspeedText =
-                                          appColors.getLightGrey();
-                                      iconHasEnemyOutspeed = Icon(
-                                        Icons.highlight_remove_rounded,
-                                        color: colorHasEnemyOutspeedText,
-                                      );
-                                    } else {
-                                      controller
-                                          .turns[indexTurn]
-                                          .characters[indexChara]
-                                          .hasEnemyOutspeed
-                                          .value = true;
-                                      colorHasEnemyOutspeedText = Colors.blue;
-                                      iconHasEnemyOutspeed = Icon(
-                                        Icons.done_rounded,
-                                        color: colorHasEnemyOutspeedText,
-                                      );
-                                    }
+                                    controller
+                                        .turns[indexTurn].characters[indexChara]
+                                        .updateEnemyHasOutsped();
                                   });
                                 },
                               ),
                             ),
                             SizedBox(height: 5),
+                            //################# Sets #################
                             Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
                                     'Sets :',
-                                    style: TextStyle(
-                                        color: appColors.getLightGrey()),
+                                    style:
+                                        TextStyle(color: AppColors.light_grey),
                                   ),
                                   SizedBox(width: 5),
                                   Container(
@@ -1102,7 +853,7 @@ class _ReportViewState extends State<ReportView> {
                                       decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(10.0),
-                                          color: appColors.getDark(),
+                                          color: AppColors.dark,
                                           border: Border.all()),
                                       child: DropdownButtonHideUnderline(
                                           child: DropdownButton(
@@ -1142,7 +893,10 @@ class _ReportViewState extends State<ReportView> {
                                         decoration: BoxDecoration(
                                             borderRadius:
                                                 BorderRadius.circular(10.0),
-                                            color: colorHasImmunityBox,
+                                            color: controller
+                                                .turns[indexTurn]
+                                                .characters[indexChara]
+                                                .colorHasImmunityBox,
                                             border: Border.all()),
                                         child: Column(
                                           mainAxisAlignment:
@@ -1150,46 +904,33 @@ class _ReportViewState extends State<ReportView> {
                                           children: [
                                             Text("Immunity",
                                                 style: TextStyle(
-                                                    color:
-                                                        colorHasImmunityText)),
+                                                    color: controller
+                                                        .turns[indexTurn]
+                                                        .characters[indexChara]
+                                                        .colorHasImmunityText)),
                                           ],
                                         ),
                                       ),
                                       onTap: () {
                                         setStateEnemy(() {
-                                          if (controller
-                                              .turns[indexTurn]
+                                          controller.turns[indexTurn]
                                               .characters[indexChara]
-                                              .hasImmunity
-                                              .value) {
-                                            controller
-                                                .turns[indexTurn]
-                                                .characters[indexChara]
-                                                .hasImmunity
-                                                .value = false;
-                                            colorHasImmunityBox =
-                                                appColors.getDarker();
-                                            colorHasImmunityText =
-                                                appColors.getLightGrey();
-                                          } else {
-                                            controller
-                                                .turns[indexTurn]
-                                                .characters[indexChara]
-                                                .hasImmunity
-                                                .value = true;
-                                            colorHasImmunityBox = Colors.blue;
-                                            colorHasImmunityText = Colors.black;
-                                          }
+                                              .updateImmunity();
                                         });
                                       },
                                     ),
                                   ),
                                 ]),
                             SizedBox(height: 10),
+                            //################# Additional infos #################
                             Flexible(
                                 child: TextField(
                               maxLength: 50,
                               maxLines: 1,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                    RegExp("[^*-_`]"))
+                              ],
                               keyboardType: TextInputType.text,
                               textCapitalization: TextCapitalization.sentences,
                               controller: controller.turns[indexTurn]
@@ -1198,15 +939,16 @@ class _ReportViewState extends State<ReportView> {
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(),
                                 filled: true,
-                                fillColor: appColors.getDark(),
+                                fillColor: AppColors.dark,
                                 labelText: 'Additional infos',
                                 labelStyle:
-                                    TextStyle(color: appColors.getLightGrey()),
+                                    TextStyle(color: AppColors.light_grey),
                                 counterStyle:
-                                    TextStyle(color: appColors.getLightGrey()),
+                                    TextStyle(color: AppColors.light_grey),
                               ),
                             )),
                             SizedBox(height: 10),
+                            //################# Close button #################
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -1301,16 +1043,5 @@ class _ReportViewState extends State<ReportView> {
             }).then((value) => setState(() {}));
       },
     );
-  }
-
-  //Converti un int en string à afficher
-  String convertNumber(int number) {
-    String convertedNumber = "";
-
-    convertedNumber +=
-        number.toString().substring(0, number.toString().length - 3);
-    convertedNumber += " 000";
-
-    return convertedNumber;
   }
 }
